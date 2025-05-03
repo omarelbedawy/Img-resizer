@@ -26,16 +26,13 @@ Clone the repo and install dependencies:
 ```bash
 git clone https://github.com/omarelbedawy/Image-resizer.git
 cd Image-resizer
+cd Back-end
 npm install
 ```
 
 ## 🛠️ Build and Run
 
 ### Development:
-
-```bash
-cd Back-end
-```
 
 ```bash
 npm run start

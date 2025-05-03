@@ -41,12 +41,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var supertest_1 = __importDefault(require("supertest"));
 var index_1 = __importDefault(require("../index"));
-describe("API Tests", function () {
-    it("should return a 200 status code", function () { return __awaiter(void 0, void 0, void 0, function () {
+describe('API Tests', function () {
+    it('should return a 200 status code', function () { return __awaiter(void 0, void 0, void 0, function () {
         var response;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, (0, supertest_1.default)(index_1.default).get("/api")];
+                case 0: return [4 /*yield*/, (0, supertest_1.default)(index_1.default).get('/')];
                 case 1:
                     response = _a.sent();
                     expect(response.status).toBe(200);

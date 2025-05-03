@@ -1,0 +1,44 @@
+{
+  "name": "back-end",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "jasmine": "jasmine",
+    "test": "npm run build && npm run jasmine",
+    "lint": "eslint src --ext .ts,.js,.json",
+    "lint:fix": "eslint src --ext .ts,.js,.json --fix",
+    "linting": "npm run lint && npm run lint:fix",
+    "format": "prettier src --write",
+    "start": "nodemon src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jasmine": "^5.1.7",
+    "@types/node": "^22.15.2",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^9.25.1",
+    "globals": "^16.0.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.0"
+  },
+  "dependencies": {
+    "@types/multer": "^1.4.12",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jasmine": "^5.6.0",
+    "jasmine-spec-reporter": "^7.0.0",
+    "multer": "^1.4.5-lts.2",
+    "sharp": "^0.34.1",
+    "supertest": "^7.1.0"
+  }
+}

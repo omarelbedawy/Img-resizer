@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+#result img,
+.gallery-image {
+  max-width: 100%;
+  height: auto;
+  margin: 10px;
+  cursor: pointer;
+}
+
+#gallery {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gallery-image {
+  width: 150px;
+  margin: 10px;
+}
+
+.gallery-image.selected {
+  border: 3px solid #007bff;
+  transform: scale(1.1);
+}

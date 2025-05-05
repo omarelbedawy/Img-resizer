@@ -45,15 +45,19 @@ var path_1 = __importDefault(require("path"));
 var fs_1 = __importDefault(require("fs"));
 var multer_1 = __importDefault(require("multer"));
 var imagerouter = express_1.default.Router();
+// Define the directory where uploaded files will be stored
 var uploadDir = path_1.default.join(__dirname, '../../assets/images/uploads');
 var upload = (0, multer_1.default)({ dest: uploadDir });
-imagerouter.post('/upload', upload.single('image'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+// POST route to handle image upload and resizing
+imagerouter.post('/upload', upload.single('image'), // Accept a single file upload with field name 'image'
+function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, width, height, file, name, ext, filename, outputPath, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 _a = req.body, width = _a.width, height = _a.height;
                 file = req.file;
+                // Validate required inputs
                 if (!file || !width || !height) {
                     res.status(400).send('Missing data');
                     return [2 /*return*/];
@@ -62,6 +66,7 @@ imagerouter.post('/upload', upload.single('image'), function (req, res) { return
                 ext = path_1.default.extname(file.originalname);
                 filename = "".concat(name, "_").concat(width, "x").concat(height).concat(ext);
                 outputPath = path_1.default.join(__dirname, '../../assets/images/outputs', filename);
+                // If the resized image already exists, send it directly
                 if (fs_1.default.existsSync(outputPath)) {
                     res.sendFile(outputPath);
                     return [2 /*return*/];
@@ -69,12 +74,16 @@ imagerouter.post('/upload', upload.single('image'), function (req, res) { return
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 3, , 4]);
+                // Resize and save the image using Sharp
                 return [4 /*yield*/, (0, sharp_1.default)(file.path)
-                        .resize(parseInt(width), parseInt(height))
+                        .resize(parseInt(width, 10), parseInt(height, 10))
                         .toFile(outputPath)];
             case 2:
+                // Resize and save the image using Sharp
                 _b.sent();
-                fs_1.default.unlinkSync(file.path); // Delete the original file after processing
+                // Delete the original uploaded file after processing
+                fs_1.default.unlinkSync(file.path);
+                // Send the resized image as the response
                 res.sendFile(outputPath);
                 return [3 /*break*/, 4];
             case 3:
@@ -86,4 +95,5 @@ imagerouter.post('/upload', upload.single('image'), function (req, res) { return
         }
     });
 }); });
+// Export the router for use in the main app
 exports.default = imagerouter;

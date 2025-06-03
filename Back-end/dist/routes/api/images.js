@@ -1,4 +1,5 @@
 "use strict";
+// src/routes/api/images.ts
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,21 +40,57 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.processImage = processImage;
 var express_1 = __importDefault(require("express"));
 var sharp_1 = __importDefault(require("sharp"));
 var path_1 = __importDefault(require("path"));
-var fs_1 = __importDefault(require("fs"));
+var promises_1 = __importDefault(require("fs/promises"));
 var multer_1 = __importDefault(require("multer"));
 var imagerouter = express_1.default.Router();
-// Define the directory where uploaded files will be stored
-var uploadDir = path_1.default.join(__dirname, '../../assets/images/uploads');
+// Directories
+var uploadDir = path_1.default.join(__dirname, '../assets/images/uploads');
+var outputDir = path_1.default.join(__dirname, '../assets/images/outputs');
+// Ensure upload directory exists (on app start)
+promises_1.default.mkdir(uploadDir, { recursive: true }).catch(console.error);
 var upload = (0, multer_1.default)({ dest: uploadDir });
-// POST route to handle image upload and resizing
-imagerouter.post('/upload', upload.single('image'), // Accept a single file upload with field name 'image'
-function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, width, height, file, name, ext, filename, outputPath, error_1;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+// Exported image processing function (testable independently)
+function processImage(sourcePath, width, height, outputPath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (width <= 0 || height <= 0 || isNaN(width) || isNaN(height)) {
+                        throw new Error('Invalid dimensions: width and height must be positive numbers.');
+                    }
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, (0, sharp_1.default)(sourcePath)
+                            .resize(width, height)
+                            .toFile(outputPath)];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_1 = _a.sent();
+                    if (error_1 instanceof Error) {
+                        throw new Error("Error processing image: ".concat(error_1.message));
+                    }
+                    else {
+                        throw new Error('Error processing image: Unknown error');
+                    }
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+// POST /api/images/upload – handles upload and resizing
+imagerouter.post('/upload', upload.single('image'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, width, height, file, parsedWidth, parsedHeight, name, ext, filename, outputPath, _b, error_2;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 _a = req.body, width = _a.width, height = _a.height;
                 file = req.file;
@@ -62,38 +99,48 @@ function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
                     res.status(400).send('Missing data');
                     return [2 /*return*/];
                 }
+                parsedWidth = parseInt(width, 10);
+                parsedHeight = parseInt(height, 10);
                 name = path_1.default.parse(file.originalname).name;
                 ext = path_1.default.extname(file.originalname);
-                filename = "".concat(name, "_").concat(width, "x").concat(height).concat(ext);
-                outputPath = path_1.default.join(__dirname, '../../assets/images/outputs', filename);
-                // If the resized image already exists, send it directly
-                if (fs_1.default.existsSync(outputPath)) {
-                    res.sendFile(outputPath);
-                    return [2 /*return*/];
-                }
-                _b.label = 1;
+                filename = "".concat(name, "_").concat(parsedWidth, "x").concat(parsedHeight).concat(ext);
+                outputPath = path_1.default.join(outputDir, filename);
+                _c.label = 1;
             case 1:
-                _b.trys.push([1, 3, , 4]);
-                // Resize and save the image using Sharp
-                return [4 /*yield*/, (0, sharp_1.default)(file.path)
-                        .resize(parseInt(width, 10), parseInt(height, 10))
-                        .toFile(outputPath)];
+                _c.trys.push([1, 4, , 5]);
+                // Ensure output directory exists before use
+                return [4 /*yield*/, promises_1.default.mkdir(outputDir, { recursive: true })];
             case 2:
-                // Resize and save the image using Sharp
-                _b.sent();
-                // Delete the original uploaded file after processing
-                fs_1.default.unlinkSync(file.path);
-                // Send the resized image as the response
-                res.sendFile(outputPath);
-                return [3 /*break*/, 4];
+                // Ensure output directory exists before use
+                _c.sent();
+                // Check if image already exists (cache)
+                return [4 /*yield*/, promises_1.default.access(outputPath)];
             case 3:
-                error_1 = _b.sent();
-                console.error(error_1);
+                // Check if image already exists (cache)
+                _c.sent();
+                res.sendFile(outputPath);
+                return [2 /*return*/];
+            case 4:
+                _b = _c.sent();
+                return [3 /*break*/, 5];
+            case 5:
+                _c.trys.push([5, 8, , 9]);
+                return [4 /*yield*/, processImage(file.path, parsedWidth, parsedHeight, outputPath)];
+            case 6:
+                _c.sent();
+                return [4 /*yield*/, promises_1.default.unlink(file.path)];
+            case 7:
+                _c.sent(); // Clean up uploaded original
+                res.sendFile(outputPath);
+                return [3 /*break*/, 9];
+            case 8:
+                error_2 = _c.sent();
+                console.error('Image processing error:', error_2);
                 res.status(500).send('Error processing image');
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                return [3 /*break*/, 9];
+            case 9: return [2 /*return*/];
         }
     });
 }); });
-// Export the router for use in the main app
+// Export router
 exports.default = imagerouter;

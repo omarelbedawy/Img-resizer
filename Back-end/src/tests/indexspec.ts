@@ -1,39 +1,21 @@
-// This file contains the test specifications for the image resizing application.
-// It includes both API endpoint tests using supertest and direct function invocation tests
-// for the image processing logic, as requested by the reviewer.
+
 
 // --- Imports ---
 import supertest from 'supertest';
 import path from 'path';
 import fs from 'fs/promises'; // Using fs.promises for async file operations
 
-// IMPORTANT PATH CORRECTION:
-// Original: import app from '../../src/index';
-// Explanation:
-// Your indexspec.ts is in 'src/tests/'. When compiled, it becomes 'dist/tests/indexspec.js'.
-// Your main app (src/index.ts) compiles to 'dist/index.js'.
-// To reach 'dist/index.js' from 'dist/tests/indexspec.js', you go up one directory (../) to 'dist/',
-// and then reference 'index'.
+
 import app from '../index'; // CORRECTED PATH for the main Express app
 
-// IMPORTANT PATH CORRECTION:
-// Original: import { processImage } from '../../src/routes/api/images';
-// Explanation:
-// Your indexspec.ts is in 'src/tests/'. When compiled, it becomes 'dist/tests/indexspec.js'.
-// Your processImage function (src/routes/api/images.ts) compiles to 'dist/routes/api/images.js'.
-// To reach 'dist/routes/api/images.js' from 'dist/tests/indexspec.js', you go up one directory (../) to 'dist/',
-// then into 'routes/api/', and then reference 'images'.
+
 import { processImage } from '../routes/api/images'; // CORRECTED PATH for the processImage function
 
 
 // Create a supertest agent for making API requests
 const request = supertest(app);
 
-// --- Path Definitions ---
-// Define paths relative to the 'Image-resizer/Image-resizer/Back-end/src/tests/' directory
-// __dirname here refers to the directory of the *source* file (src/tests/)
-// '../../assets/images' correctly points to 'Back-end/src/assets/images'
-const ASSETS_DIR = path.resolve(__dirname, '../../assets/images');
+const ASSETS_DIR = path.resolve(__dirname, '../../src/assets/images');
 const UPLOADS_DIR = path.resolve(ASSETS_DIR, 'uploads'); // As per the image structure
 const OUTPUTS_DIR = path.resolve(ASSETS_DIR, 'outputs'); // As per the image structure
 
@@ -48,20 +30,14 @@ describe('Image Resizer Application Tests', () => {
             await fs.mkdir(UPLOADS_DIR, { recursive: true });
             await fs.mkdir(OUTPUTS_DIR, { recursive: true });
 
-            // Create a dummy test image if it doesn't exist.
-            // In a production test suite, you'd typically have a small fixture image
-            // copied into your test environment.
+
             const dummyImagePath = SOURCE_IMAGE_PATH;
             try {
                 await fs.access(dummyImagePath);
                 console.log(`Using existing test image: ${dummyImagePath}`);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
-                // If the file doesn't exist, create a tiny dummy file.
-                // NOTE: For actual image processing, this dummy file won't work.
-                // You MUST place a real, small image file named 'test.png'
-                // in 'src/assets/images/uploads/' for the image processing to succeed.
-                await fs.writeFile(dummyImagePath, 'dummy image data for testing');
+
                 console.warn(`Created dummy test image at: ${dummyImagePath}. ` +
                              `Please replace with a real PNG for actual image processing.`);
             }
